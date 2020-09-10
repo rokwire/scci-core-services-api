@@ -9,6 +9,3 @@ python-dotenv==0.10.3
 gevent==1.4.0
 
 ../lib/auth-middleware
-
-#dev
-ipython

@@ -1,22 +1,32 @@
-FROM python:3-alpine3.11
+FROM python:3-alpine3.11 as base
+
+RUN apk --update add openssl ca-certificates
+
+WORKDIR /usr/src/app/lib
+COPY lib .
+
+FROM base as requirements
+
+# C libs needed to build cryptography a dependency for requests
+RUN apk --update add libffi-dev openssl-dev build-base
+
+COPY profileservice/requirements.txt /
+RUN pip install --user --no-warn-script-location --no-cache-dir \
+                -r /requirements.txt
+RUN chmod -R oug+r /root/.local
+RUN find /root/.local -type d -exec chmod oug+x {} +
+
+FROM base
 
 LABEL maintainer="ywkim@illinois.edu"
 
 EXPOSE 5000
 
-WORKDIR /usr/src/app/lib
-
-COPY lib .
+COPY --from=requirements /root/.local /usr/local
 
 WORKDIR /usr/src/app/profileservice
 
 COPY profileservice .
-
-RUN apk --update add python py-pip openssl ca-certificates py-openssl && \
-  apk --update add --virtual build-dependencies libffi-dev openssl-dev python-dev py-pip build-base && \
-  pip install --upgrade pip && \
-  pip install -r requirements.txt --no-cache-dir && \
-  apk del build-dependencies
 
 WORKDIR /usr/src/app/profileservice/api
 
@@ -29,5 +39,7 @@ ENV PROFILE_REST_STORAGE="/usr/src/app/rest" \
     FLASK_APP="profile_rest_service" \
     FLASK_ENV="development" \
     PROFILE_URL_PREFIX=""
+
+USER nobody
 
 CMD ["gunicorn", "profile_rest_service:app", "--config", "/usr/src/app/profileservice/api/gunicorn.config.py"]

@@ -1,24 +1,35 @@
-FROM python:3-alpine3.11
+FROM python:3-alpine3.11 as base
 
-LABEL maintainer="wzhu26@illinois.edu"
+RUN apk --update add openssl ca-certificates
 
 WORKDIR /app
+COPY lib /lib/
 
+FROM base as requirements
+
+# C libs needed to build cryptography a dependency for requests
+RUN apk --update add libffi-dev openssl-dev build-base
+
+COPY appconfigservice/requirements.txt appconfigservice/
+RUN pip install --user --no-warn-script-location --no-cache-dir \
+                -r appconfigservice/requirements.txt
+RUN chmod -R oug+r /root/.local
+RUN find /root/.local -type d -exec chmod oug+x {} +
+
+FROM base
+
+COPY --from=requirements /root/.local /usr/local
 COPY appconfigservice ./appconfigservice
-COPY lib ../lib/
 COPY appconfigservice/appconfig.yaml .
 
 ENV APP_CONFIG_MONGO_URL=""
 ENV APP_CONFIG_URL_PREFIX=""
 
-RUN apk --update add python py-pip openssl ca-certificates py-openssl && \
-  apk --update add --virtual build-dependencies libffi-dev openssl-dev python-dev py-pip build-base && \
-  pip install --upgrade pip && \
-  pip install -r appconfigservice/requirements.txt --no-cache-dir && \
-  apk del build-dependencies
-  
 WORKDIR /app/appconfigservice/api
-
 VOLUME /var/cache/app
+
+LABEL maintainer="wzhu26@illinois.edu"
+
+USER nobody
 
 CMD ["gunicorn", "appconfig_rest_service:app", "--config", "../gunicorn.config.py"]

@@ -26,4 +26,6 @@ VOLUME /usr/share/nginx/html/app/
 
 ENV BASE_URL="/docs"
 
+USER nginx
+
 CMD ["sh", "/usr/share/nginx/run.sh"]
