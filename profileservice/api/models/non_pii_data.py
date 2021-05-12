@@ -73,7 +73,7 @@ class NonPiiData():
     def set_negativeInterestTags(self, negativeInterestTags):
         self.negativeInterestTags = negativeInterestTags
 
-    def get_negativeInterestTagss(self):
+    def get_negativeInterestTags(self):
         return self.negativeInterestTags
 
     def set_privacy_settings(self, privacySettings):

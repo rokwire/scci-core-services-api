@@ -24,6 +24,7 @@ class PiiData:
         self.email = None
         self.username = None
         self.uin = None
+        self.uid = None
         self.netid = None
         self.birthYear = None
         self.address = None
@@ -91,6 +92,12 @@ class PiiData:
     def get_uin(self):
         return self.uin
 
+    def set_uid(self, uid):
+        self.uid = uid
+
+    def get_uid(self):
+        return self.uid
+
     def set_netid(self, netid):
         self.netid = netid
 
@@ -113,8 +120,8 @@ class PiiData:
     def get_birth_year(self):
         return self.birthYear
 
-    def set_address(self, address ):
-        self.address  = address
+    def set_address(self, address):
+        self.address = address
 
     def get_address(self):
         return self.address

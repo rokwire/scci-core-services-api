@@ -35,6 +35,7 @@ db_pii.pii_collection = db_pii[cfg.PII_DB_PII_COLL_NAME]
 db_pii.pii_collection.create_index([("pid", ASCENDING)], background=True)
 db_pii.pii_collection.create_index([("uin", ASCENDING)], background=True)
 db_pii.pii_collection.create_index([("phone", ASCENDING)], background=True)
+db_pii.pii_collection.create_index([("uid", ASCENDING)], background=True)
 
 """
 get query output json of PII from query using search arguments
@@ -360,3 +361,4 @@ def index_pii_data():
     db_pii.pii_collection.create_index([('pid', ASCENDING)], background=True)
     db_pii.pii_collection.create_index([('uin', ASCENDING)], background=True)
     db_pii.pii_collection.create_index([('phone', ASCENDING)], background=True)
+    db_pii.pii_collection.create_index([("uid", ASCENDING)], background=True)
