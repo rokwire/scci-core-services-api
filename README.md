@@ -6,7 +6,7 @@ API definitions of the Rokwire Platform building blocks
 ## Install commit hooks
 
 ```
-$ pip install detect-secrets pre-commit
+$ pip install -r requirements-dev.txt
 $ pre-commit install
 ```
 
