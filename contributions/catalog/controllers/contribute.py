@@ -1,4 +1,5 @@
 import json
+import logging
 import traceback
 
 import requests
@@ -92,16 +93,15 @@ def create():
         response, s = post(json_contribution)
 
         if response:
-            if response:
-                if "name" in session:
-                    return render_template('contribute/submitted.html', user=session["name"],  token=session['oauth_token']['access_token'])
-                else:
-                    return render_template('contribute/submitted.html')
-            elif not response:
-                if "name" in session:
-                    return render_template('contribute/error.html', user=session["name"],  token=session['oauth_token']['access_token'], error_msg=s)
-                else:
-                    return render_template('contribute/error.html', error_msg=s)
+            if "name" in session:
+                return render_template('contribute/submitted.html', user=session["name"],  token=session['oauth_token']['access_token'])
+            else:
+                return render_template('contribute/submitted.html')
+        elif not response:
+            if "name" in session:
+                return render_template('contribute/error.html', user=session["name"],  token=session['oauth_token']['access_token'], error_msg=s)
+            else:
+                return render_template('contribute/error.html', error_msg=s)
     return render_template('contribute/contribute.html', user=session["name"],  token=session['oauth_token']['access_token'])
 
 
@@ -136,11 +136,12 @@ def post(json_data):
                                data=json_data)
 
         if result.status_code != 200:
-            print("post method fails".format(json_data))
-            print("with error code:", result.status_code)
-            return False, str("post method fails with error: ") + str(result.status_code)
+            err_json = parse_response_error(result)
+            logging.error("Contribution POST " + json.dumps(err_json))
+            return False, str("post method fails with error: ") + str(result.status_code) \
+                   + ": " + str(err_json['reason'])
         else:
-            print("posted ok.".format(json_data))
+            logging.info("posted ok.".format(json_data))
             return True, str("post success!")
 
     except Exception:
@@ -161,8 +162,8 @@ def get_contribution(contribution_id):
                                   headers=headers)
 
         if result.status_code != 200:
-            print("GET method fails".format(contribution_id))
-            print("with error code:", result.status_code)
+            err_json = parse_response_error(result)
+            logging.error("Contribution GET " + json.dumps(err_json))
             return {}
         else:
             print("GET ok.".format(contribution_id))
@@ -183,8 +184,8 @@ def get_capability(contribution_id, cid):
             result = requests.get(cfg.CONTRIBUTION_BUILDING_BLOCK_URL +'/' + str(contribution_id) + "/capabilities/" + str(cid),
                                   headers=headers)
         if result.status_code != 200:
-            print("GET method fails".format(id))
-            print("with error code:", result.status_code)
+            err_json = parse_response_error(result)
+            logging.error("Capability GET " + json.dumps(err_json))
             return {}
         else:
             print("GET ok.".format(id))
@@ -206,8 +207,8 @@ def get_talent(contribution_id, tid):
                                   headers=headers)
 
         if result.status_code != 200:
-            print("GET method fails".format(id))
-            print("with error code:", result.status_code)
+            err_json = parse_response_error(result)
+            logging.error("Talent GET " + json.dumps(err_json))
             return {}
         else:
             print("GET ok.".format(id))
@@ -234,8 +235,8 @@ def search(input_data):
                                   headers=headers)
 
         if result.status_code != 200:
-            print("post method fails".format(input_data))
-            print("with error code:", result.status_code)
+            err_json = parse_response_error(result)
+            logging.error("Search " + json.dumps(err_json))
             return False
         else:
             print("posted ok.".format(input_data))
@@ -244,3 +245,12 @@ def search(input_data):
     except Exception:
         # traceback.print_exc()
         return False
+
+"""
+parse error response and convert to json object
+"""
+def parse_response_error(response):
+    err_content = response.content.decode("utf-8").replace('\n', '')
+    err_json = json.loads(err_content)
+
+    return err_json

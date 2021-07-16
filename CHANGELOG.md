@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add group authorization to PUT/events/{event_id}/images/{image_id} endpoint.[#719](https://github.com/rokwire/rokwire-building-blocks-api/issues/719)
 - Add group authorization to DELETE /events/{event_id}/images/{image_id} endpoint.[#720](https://github.com/rokwire/rokwire-building-blocks-api/issues/720)
 
+### Fixed
+- Contribution POST gives proper error message. [#714](https://github.com/rokwire/rokwire-building-blocks-api/issues/714)
+
 ## [1.10.0] - 2021-06-29
 ### Added
 - Add endpoints for listing contributions, capabilities, and talents. [#602](https://github.com/rokwire/rokwire-building-blocks-api/issues/602)
