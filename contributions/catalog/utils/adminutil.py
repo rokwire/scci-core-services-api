@@ -1,4 +1,4 @@
-#  Copyright 2021 Board of Trustees of the University of Illinois.
+#  Copyright 2020 Board of Trustees of the University of Illinois.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import controllers.configs as cfg
-import utils.mongoutils as mongoutils
+from utils import requestutil
+from controllers.config import Config as cfg
 
 """
 check if the logged in user is a superuser
@@ -29,7 +29,7 @@ def check_if_superuser(login_id):
 """
 check if the logged in user is a reviewer
 """
-def check_if_reviewer(login_id):
+def check_if_reviewer(login_id, headers):
     # check if the logged in id is admin user
     is_superuser = check_if_superuser(login_id)
 
@@ -37,15 +37,13 @@ def check_if_reviewer(login_id):
         return True
 
     # check if the logged in id is in reviewers database
-    list_reviewers = mongoutils.list_reviewers()
+    # otherwise it will give 401
+    result = requestutil.request_reviewers(headers)
 
-    if list_reviewers is not None:
-        # extract out the usernames from the list
-        users = []
-        for reviewer in list_reviewers:
-            users.append(reviewer["githubUsername"])
-
-        if login_id in users:
-            return True
+    # if you can get this result, the user is a reviewer
+    if result.status_code == 200:
+        return True
 
     return False
+
+

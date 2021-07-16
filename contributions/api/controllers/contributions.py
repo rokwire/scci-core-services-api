@@ -37,6 +37,7 @@ from models.talents.talent import Talent
 from models.reviewer import Reviewer
 from pymongo import MongoClient
 
+
 client_contribution = MongoClient(cfg.MONGO_CONTRIBUTION_URL, connect=False)
 db_contribution = client_contribution[cfg.CONTRIBUTION_DB_NAME]
 coll_contribution = db_contribution[cfg.CONTRIBUTION_COLL_NAME]
@@ -833,7 +834,7 @@ def admin_reviewers_post(token_info):
     # only superuser can add the reviewer
     
     # check if the logged in user is in the administrator
-    is_admin = adminutils.check_if_reviewer(token_info["login"])
+    is_admin = adminutils.check_if_superuser(token_info["login"])
 
     if not is_admin:
         msg = {
@@ -879,7 +880,7 @@ def admin_reviewers_search(token_info):
     reviewers = []
 
     # check if the logged in user is a administrator
-    is_admin = adminutils.check_if_reviewer(token_info["login"])
+    is_admin = adminutils.check_if_superuser(token_info["login"])
 
     if not is_admin:
         msg = {
@@ -899,7 +900,7 @@ def admin_reviewers_search(token_info):
 
 def admin_reviewers_delete(token_info, id):
     # check if the logged in user is in the reviewers db
-    is_reviewer = adminutils.check_if_reviewer(token_info["login"])
+    is_reviewer = adminutils.check_if_superuser(token_info["login"])
 
     if not is_reviewer:
         msg = {
